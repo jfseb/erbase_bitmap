@@ -1,0 +1,16 @@
+{
+  "domain": "hints",
+  "category": [
+    "hints"
+  ],
+  "wordindex": [
+  ],
+  "hidden": [
+    "_urlpattern"
+  ],
+  "tool": {
+  },
+  "synonyms" : {
+    "hints" : ["tips and tricks", "tips", "tricks", "expert tips"]
+  }
+}

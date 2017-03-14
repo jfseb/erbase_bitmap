@@ -1,0 +1,107 @@
+
+    digraph sdsu {
+	size="36,36";
+   rankdir=LR
+	node [color=yellow, style=filled];
+    "FioriBOM"
+  node [shape=record, color=yellow, style=filled];
+ "AppDocumentationLinkKW" [label="{ AppDocumentationLinkKW | 2579 Values in 10619  }"]
+"AppKey" [label="{ AppKey | 12779 Values in 12779  }"]
+"AppName" [label="{ AppName | 7091 Values in 12779  }"]
+"ApplicationComponent" [label="{ ApplicationComponent | 710 Values in 12779  }"]
+"ApplicationType" [label="{ ApplicationType | 15 Values in 12779  }"]
+"ArtifactId" [label="{ ArtifactId | 773 Values in 6301  }"]
+"BSPApplicationURL" [label="{ BSPApplicationURL | 754 Values in 10634  }"]
+"BSPName" [label="{ BSPName | 783 Values in 10634  }"]
+"BSPPackage" [label="{ BSPPackage | 645 Values in 10619  }"]
+"BusinessCatalog" [label="{ BusinessCatalog | 888 Values in 12779  }"]
+"BusinessGroupDescription" [label="{ BusinessGroupDescription | 602 Values in 10619  }"]
+"BusinessGroupName" [label="{ BusinessGroupName | 734 Values in 10619  }"]
+"BusinessRoleName" [label="{ BusinessRoleName | 542 Values in 10619  }"]
+"ExternalReleaseName" [label="{ ExternalReleaseName | 31 Values in 10619  }"]
+"FrontendSoftwareComponent" [label="{ FrontendSoftwareComponent | 83 Values in 10619  }"]
+"LPDCustInstance" [label="{ LPDCustInstance | 18 Values in 10619  }"]
+"PrimaryODataPFCGRole" [label="{ PrimaryODataPFCGRole | 376 Values in 10619  }"]
+"PrimaryODataServiceName" [label="{ PrimaryODataServiceName | 777 Values in 10619  }"]
+"RoleName" [label="{ RoleName | 359 Values in 12779  }"]
+"SemanticAction" [label="{ SemanticAction | 3742 Values in 10379  }"]
+"SemanticObject" [label="{ SemanticObject | 1152 Values in 10376  }"]
+"TechnicalCatalog" [label="{ TechnicalCatalog | 362 Values in 12778  }"]
+"TransactionCode" [label="{ TransactionCode | 4465 Values in 10619  }"]
+"URLParameters" [label="{ URLParameters | 60 Values in 10619  }"]
+"appId" [label="{ appId | 7690 Values in 12779  }"]
+"detailsurl" [label="{ detailsurl | 5494 Values in 10619  }"]
+"fiori intent" [label="{ fiori intent | 5381 Values in 12779  }"]
+"isPublished" [label="{ isPublished | 1 Values in 10619  }"]
+"releaseId" [label="{ releaseId | 32 Values in 12779  }"]
+"releaseName" [label="{ releaseName | 39 Values in 12779  }"]
+"uri" [label="{ uri | 12552 Values in 12779  }"]
+node [color=purple, style=filled]; 
+node [shape=record]; 
+ "record" [label="{<f0> FioriBOM | 12779}"] 
+ "r_other" [label="{<f0> other | 12779}"] 
+ # relation from categories to domain
+ "AppDocumentationLinkKW" -> "FioriBOM" 
+ "AppKey" -> "FioriBOM" 
+ "AppName" -> "FioriBOM" 
+ "ApplicationComponent" -> "FioriBOM" 
+ "ApplicationType" -> "FioriBOM" 
+ "ArtifactId" -> "FioriBOM" 
+ "BSPApplicationURL" -> "FioriBOM" 
+ "BSPName" -> "FioriBOM" 
+ "BSPPackage" -> "FioriBOM" 
+ "BusinessCatalog" -> "FioriBOM" 
+ "BusinessGroupDescription" -> "FioriBOM" 
+ "BusinessGroupName" -> "FioriBOM" 
+ "BusinessRoleName" -> "FioriBOM" 
+ "ExternalReleaseName" -> "FioriBOM" 
+ "FrontendSoftwareComponent" -> "FioriBOM" 
+ "LPDCustInstance" -> "FioriBOM" 
+ "PrimaryODataPFCGRole" -> "FioriBOM" 
+ "PrimaryODataServiceName" -> "FioriBOM" 
+ "RoleName" -> "FioriBOM" 
+ "SemanticAction" -> "FioriBOM" 
+ "SemanticObject" -> "FioriBOM" 
+ "TechnicalCatalog" -> "FioriBOM" 
+ "TransactionCode" -> "FioriBOM" 
+ "URLParameters" -> "FioriBOM" 
+ "appId" -> "FioriBOM" 
+ "detailsurl" -> "FioriBOM" 
+ "fiori intent" -> "FioriBOM" 
+ "isPublished" -> "FioriBOM" 
+ "releaseId" -> "FioriBOM" 
+ "releaseName" -> "FioriBOM" 
+ "uri" -> "FioriBOM" 
+# relation from categories to records
+ "AppDocumentationLinkKW" -> "record" 
+ "AppKey" -> "record" 
+ "AppName" -> "record" 
+ "ApplicationComponent" -> "record" 
+ "ApplicationType" -> "record" 
+ "ArtifactId" -> "record" 
+ "BSPApplicationURL" -> "record" 
+ "BSPName" -> "record" 
+ "BSPPackage" -> "record" 
+ "BusinessCatalog" -> "record" 
+ "BusinessGroupDescription" -> "record" 
+ "BusinessGroupName" -> "record" 
+ "BusinessRoleName" -> "record" 
+ "ExternalReleaseName" -> "record" 
+ "FrontendSoftwareComponent" -> "record" 
+ "LPDCustInstance" -> "record" 
+ "PrimaryODataPFCGRole" -> "record" 
+ "PrimaryODataServiceName" -> "record" 
+ "RoleName" -> "record" 
+ "SemanticAction" -> "record" 
+ "SemanticObject" -> "record" 
+ "TechnicalCatalog" -> "record" 
+ "TransactionCode" -> "record" 
+ "URLParameters" -> "record" 
+ "appId" -> "record" 
+ "detailsurl" -> "record" 
+ "fiori intent" -> "record" 
+ "isPublished" -> "record" 
+ "releaseId" -> "record" 
+ "releaseName" -> "record" 
+ "uri" -> "record" 
+}

@@ -1,0 +1,53 @@
+{
+  "domain": "TWF fields",
+  "description" : "The world factbook fields",
+  "category": [
+    { "name" : "fieldId",
+      "description" : "Technical key of field"
+    },
+    { "name" : "fieldName",
+      "description" : "name of field"
+    },
+    { "name" : "field description",
+      "description" : "verbose description of field"
+    }
+  ],
+  "wordindex": [
+    "fieldName"
+  ],
+  "exactmatch": [
+    "fieldId"
+  ],
+  "hidden": [
+    "url"
+  ],
+  "tool": {
+    "name": "ShowTWF",
+    "requires": {
+      "fieldName": {}
+    },
+    "optional" : {},
+    "sets": {
+      "country": {
+        "set": [
+          "fieldId"
+        ],
+        "response": "url"
+      },
+      "fieldName": {
+        "set": [
+          "fieldName"
+        ],
+        "response": "url"
+      }
+    }
+  },
+  "synonyms": {
+    "Element name": [
+      "name"
+    ],
+    "Element symbol": [
+      "symbol"
+    ]
+  }
+}

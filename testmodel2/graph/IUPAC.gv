@@ -1,0 +1,26 @@
+
+    digraph sdsu {
+	size="36,36";
+   rankdir=LR
+	node [color=yellow, style=filled];
+    "IUPAC"
+  node [shape=record, color=yellow, style=filled];
+ "atomic weight" [label="{ atomic weight | 85 Values in 118  }"]
+"element name" [label="{ element name | 118 Values in 118  }"]
+"element number" [label="{ element number | 118 Values in 118  }"]
+"element symbol" [label="{ element symbol | 118 Values in 118  }"]
+node [color=purple, style=filled]; 
+node [shape=record]; 
+ "record" [label="{<f0> IUPAC | 118}"] 
+ "r_other" [label="{<f0> other | 118}"] 
+ # relation from categories to domain
+ "atomic weight" -> "IUPAC" 
+ "element name" -> "IUPAC" 
+ "element number" -> "IUPAC" 
+ "element symbol" -> "IUPAC" 
+# relation from categories to records
+ "atomic weight" -> "record" 
+ "element name" -> "record" 
+ "element number" -> "record" 
+ "element symbol" -> "record" 
+}

@@ -1,0 +1,20 @@
+
+    digraph sdsu {
+	size="36,36";
+   rankdir=LR
+	node [color=yellow, style=filled];
+    "GeneticDNA"
+  node [shape=record, color=yellow, style=filled];
+ "Amino acid" [label="{ Amino acid | 15 Values in 43  }"]
+"nucleotid sequence" [label="{ nucleotid sequence | 41 Values in 43  }"]
+node [color=purple, style=filled]; 
+node [shape=record]; 
+ "record" [label="{<f0> GeneticDNA | 43}"] 
+ "r_other" [label="{<f0> other | 43}"] 
+ # relation from categories to domain
+ "Amino acid" -> "GeneticDNA" 
+ "nucleotid sequence" -> "GeneticDNA" 
+# relation from categories to records
+ "Amino acid" -> "record" 
+ "nucleotid sequence" -> "record" 
+}

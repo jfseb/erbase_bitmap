@@ -1,0 +1,18 @@
+{
+  "domain": "example questions",
+  "category": [
+    "example question",
+    "questionId"
+  ],
+  "wordindex": [
+  ],
+  "hidden": [
+    "_urlpattern"
+  ],
+  "tool": {
+  },
+  "synonyms" : {
+    "example questions" : ["questions", "sample questions"],
+    "example question" : ["questions", "sample questions", "sample question"]
+  }
+}

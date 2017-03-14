@@ -1,0 +1,25 @@
+{
+  "domain": "GeneticDNA",
+  "description" : "an incomplte model of the Amino acids and associated DNA triples",
+  "category": [
+    { "name" :  "nucleotid sequence" ,
+      "description" : "triplet of nucleotids encoding this amino acid"
+    },
+    { "name": "Amino acid",
+      "description" : "Name encoding"
+    }
+  ],
+  "wordindex": [
+      "nucleotid sequence", "Amino acid"
+  ],
+  "hidden": [
+    "_urlpattern1",
+    "_urlpattern2",
+    "_urlpattern3"
+  ],
+  "tool": {
+  },
+    "synonyms" : {
+    "amino acid" : ["aminoacid"]
+  }
+}

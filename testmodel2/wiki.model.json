@@ -1,0 +1,24 @@
+{
+  "domain": "wiki",
+  "category": [
+    "wiki",
+    "tool",
+    "wikipage"
+  ],
+  "wordindex": [
+    "wiki"
+  ],
+  "hidden": [
+    "_url",
+    "wikipage"
+  ],
+  "tool": {
+    "name": "wiki",
+    "requires": {
+      "wiki": {}
+    },
+    "optional": {
+      "wikipage": {}
+    }
+  }
+}

@@ -3,7 +3,7 @@ docs
 logs
 src
 test
-
+testmodel2
 tsconfig.json
 README.md
 .eslintrc.json

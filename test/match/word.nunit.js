@@ -5,7 +5,7 @@
  */
 
 var process = require('process');
-var root = (process.env.FSD_COVERAGE) ? '../../gen_cov' : '../../js';
+var root = (process.env.FSD_COVERAGE) ? '../../js_cov' : '../../js';
 
 //var debuglog = require('debug')('word.nunit');
 

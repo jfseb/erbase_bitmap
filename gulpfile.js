@@ -83,6 +83,8 @@ gulp.task('clean:models', function () {
   return del([
     'sensitive/_cachefalse.js.zip',
     'testmodel2/_cachefalse.js.zip',
+    'node_modules/abot_testmodel/testmodel/_cachefalse.js.zip',
+    'node_modules/abot_testmodel/testmodel/_cachetrue.js.zip',
     'testmodel/_cachefalse.js.zip',
     'sensitive/_cachetrue.js.zip',
     'testmodel2/_cachetrue.js.zip',
@@ -242,6 +244,23 @@ gulp.task('standard', () => {
     // lint error, return the stream and pipe to failAfterError last.
     .pipe(eslint.failAfterError());
 });
+
+const gulpRun = require('gulp-run');
+
+gulp.task('pack', () => {
+  return gulpRun('npm pack').exec().pipe(gulp.dest('outpu'));
+});
+
+gulp.task('packhome1', ['pack'] , () => {
+  return gulpRun('cd ..\\fdevstart && npm i ..\\erbase_bitmap\\abot_erbase-0.1.4.tgz').exec()
+  .pipe(gulp.dest('outpu_packhome1'));
+});
+
+gulp.task('packhome2', ['pack'] , () => {
+  return gulpRun('cd ..\\abot && npm i ..\\erbase_bitmap\\abot_erbase-0.1.4.tgz').exec()
+  .pipe(gulp.dest('outpu_packhome2'));
+});
+gulp.task('packhome', ['packhome1' , 'packhome2' ]);
 
 
 // Default Task

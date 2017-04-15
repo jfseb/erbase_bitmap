@@ -1257,6 +1257,45 @@ delete res[0].levenmatch;
   test.done();
 };
 
+//const Model = require('fdevsta_monmove').Model;
+
+var theModel = Model.loadModels();
+
+exports.testCategorizeAWordWithOffest = function (test) {
+
+ var res = inputFilter.categorizeAWordWithOffsets('ApplicationComponent', theModel.rules,  'not relevant', {}, {});
+  test.deepEqual(res, [ { string: 'ApplicationComponent',
+    matchedString: 'ApplicationComponent',
+    category: 'category',
+    rule:
+     { category: 'category',
+       matchedString: 'ApplicationComponent',
+       type: 0,
+       word: 'ApplicationComponent',
+       lowercaseword: 'applicationcomponent',
+       bitindex: 2048,
+       wordType: 'C',
+       bitSentenceAnd: 2048,
+       _ranking: 0.95 },
+    _ranking: 0.95 },
+  { string: 'ApplicationComponent',
+    matchedString: 'ApplicationComponent',
+    category: 'category',
+    rule:
+     { category: 'category',
+       matchedString: 'ApplicationComponent',
+       type: 0,
+       word: 'ApplicationComponent',
+       lowercaseword: 'applicationcomponent',
+       bitindex: 512,
+       wordType: 'C',
+       bitSentenceAnd: 512,
+       _ranking: 0.95 },
+    _ranking: 0.95 } ]);
+  test.done();
+};
+
+
 
 exports.testCategorizeStringDistanceNavTargetInBetween = function (test) {
   // debuglog(JSON.stringify(ifr, undefined, 2))

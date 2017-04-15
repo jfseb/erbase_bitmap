@@ -379,7 +379,7 @@ export function categorizeString(word: string, exact: boolean, oRules: Array<IFM
  cntRec? : ICntRec): Array<IFMatch.ICategorizedString> {
   // simply apply all rules
   if(debuglogM.enabled )  {
-    debuglogM("rules : " + JSON.stringify(oRules, undefined, 2));
+    debuglogV("rules : " + JSON.stringify(oRules, undefined, 2));
   }
   var lcString = word.toLowerCase();
   var res: Array<IFMatch.ICategorizedString> = []
@@ -395,8 +395,8 @@ export function categorizeString(word: string, exact: boolean, oRules: Array<IFM
 export function categorizeSingleWordWithOffset(word: string, lcword : string, exact: boolean, oRules: Array<IFModel.mRule>,
  cntRec? : ICntRec): Array<IFMatch.ICategorizedStringRanged> {
   // simply apply all rules
-  if(debuglogM.enabled )  {
-    debuglogM("rules : " + JSON.stringify(oRules, undefined, 2));
+  if(debuglogV.enabled )  {
+    debuglogV("rules : " + JSON.stringify(oRules, undefined, 2));
   }
   var res: Array<IMatch.ICategorizedStringRanged> = []
   oRules.forEach(function (oRule) {
@@ -460,10 +460,13 @@ export function postFilterWithOffset(res : Array<IFMatch.ICategorizedStringRange
     // 1- 0.93 = 0.7
     // 1/7
     var delta = bestRank / resx._ranking;
+    var prior = res[index-1];
     if(
         !(resx.rule && resx.rule.range)
      && !(res[index-1].rule && res[index-1].rule.range)
-     && (resx.matchedString === res[index-1].matchedString)
+     && (resx.matchedString === prior.matchedString)
+     && (resx.rule.bitindex === prior.rule.bitindex)
+     && (resx.rule.wordType === prior.rule.wordType)
      && (resx.category === res[index-1].category)) {
       return false;
     }
@@ -518,15 +521,15 @@ export function categorizeWordInternalWithOffsets(word: string, lcword : string,
 
   debuglogM("categorize " + lcword + " with offset!!!!!!!!!!!!!!!!!" + exact)
   // simply apply all rules
-  if (debuglogM.enabled )  {
-    debuglogM("rules : " + JSON.stringify(rules,undefined, 2));
+  if (debuglogV.enabled )  {
+    debuglogV("rules : " + JSON.stringify(rules,undefined, 2));
   }
   var res: Array<IMatch.ICategorizedStringRanged> = [];
   if (exact) {
     var r = rules.wordMap[lcword];
     if (r) {
-      debuglogM(` ....pushing n rules exact for ${lcword}:` + r.rules.length);
-      debuglogM(r.rules.map((r,index)=> '' + index + ' ' + JSON.stringify(r)).join("\n"));
+      debuglogM(debuglogM.enabled ? ` ....pushing n rules exact for ${lcword}:` + r.rules.length : '-');
+      debuglogM(debuglogM.enabled ? r.rules.map((r,index)=> '' + index + ' ' + JSON.stringify(r)).join("\n") : '-');
       r.rules.forEach(function(oRule) {
         res.push({
             string: word,

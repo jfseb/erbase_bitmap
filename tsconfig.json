@@ -30,6 +30,7 @@
     "files": [
         "src/match/algol.ts",
         "src/match/erbase.ts",
+        "src/match/erindex.ts",
         "src/match/ererror.ts",
         "src/match/iferbase.ts",
         "src/match/iferbase.ts",

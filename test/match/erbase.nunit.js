@@ -164,7 +164,13 @@ exports.testEvaluteRangeRulesToPositionVerySloppyMatch = function(test) {
 
 function simplifyStrings(res) {
   return res.map(function(r) {
-    return r.map(word =>  { return word.string + '=>' +  word.matchedString + '/' + word.category + (word.span? '/' + word.span : '')})
+    return r.map(word =>  { return word.string + '=>' +  word.matchedString + '/' + word.category + (word.span? '/' + word.span : '') })
+  });
+}
+
+function simplifyStringsWithBitIndex(res) {
+  return res.map(function(r) {
+    return r.map(word =>  { return word.string + '=>' +  word.matchedString + '/' + word.category + (word.span? '/' + word.span : '') + ` ${word.rule.wordType}${word.rule.bitindex}`})
   });
 }
 
@@ -181,10 +187,11 @@ exports.testTokenizeStringElNames = function (test) {
   //console.log(theModel.mRules);
   var res = Erbase.tokenizeString('elament names b', theModel.rules, words);
   debuglog('res > ' + JSON.stringify(res, undefined, 2));
-  test.deepEqual(simplifyStrings(res.categorizedWords), [
+  test.deepEqual(simplifyStringsWithBitIndex(res.categorizedWords), [
     [],
-    ['names=>element name/category'],
-    ['b=>B/element symbol']
+    ['names=>element name/category C64',
+     'names=>element name/category C32'],
+    ['b=>B/element symbol C32']
     ], ' correct result ');
   test.done();
 };
@@ -195,7 +202,7 @@ exports.testTokenizeStringElNamesAlpha = function (test) {
   //console.log(theModel.mRules);
   var res = Erbase.tokenizeString('Alpha Cantauri B', theModel.rules, words);
   debuglog('res > ' + JSON.stringify(res, undefined, 2));
-
+console.log(JSON.stringify(res));
   test.deepEqual(simplifyStrings(res.categorizedWords),
   [[],[], ['B=>B/element symbol' ] ]
   , ' correct result ');
@@ -213,15 +220,15 @@ exports.testProcessStringelementNames = function (test) {
   var res = Erbase.processString('elaement names nickel ', theModel.rules, words);
   debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
 
-  test.deepEqual(simplifySentence(res.sentences),
-    [ [ 'elaement names=>element name/category/2',
-    'nickel=>nickel/element name' ] ]
+  test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
+    [  /* [ 'elaement names=>element name/category/2 C64',
+    'nickel=>nickel/element name C32' ], */
+    [ 'elaement names=>element name/category/2 C32',
+    'nickel=>nickel/element name C32' ]
+     ]
     , ' correct result ');
   test.done();
 };
-
-
-
 
 
 exports.testProcessStringelementNamesSep = function (test) {
@@ -251,6 +258,39 @@ var res = Erbase.expandTokenMatchesToSentences(['a','b','c'],src);
   test.deepEqual(res.sentences, []);
   test.done();
 };
+
+exports.testExpandNoBits = function (test) {
+  test.ok(1);
+  var src = [
+    [{ string: 'a', a: 1 },
+    { string: 'b', a: 1 }],
+    [{ string: '3', a: 1 }, { string: 'c', a: 1 } ]
+  ];
+var res = Erbase.expandTokenMatchesToSentences(['a','b','c'],src);
+  test.deepEqual(res.sentences,[ [ { string: 'a', a: 1 }, { string: '3', a: 1 } ],
+  [ { string: 'b', a: 1 }, { string: '3', a: 1 } ],
+  [ { string: 'a', a: 1 }, { string: 'c', a: 1 } ],
+  [ { string: 'b', a: 1 }, { string: 'c', a: 1 } ] ]  );
+  test.done();
+};
+
+exports.testExpandWithBits = function (test) {
+  test.ok(1);
+  var src = [
+    [{ string: 'a', a: 1, rule : { bitSentenceAnd : 0x02 } },
+    { string: 'b', a: 1 , rule : { bitSentenceAnd : 0x01 } }],
+    [{ string: '3', a: 1 , rule : { bitSentenceAnd : 0x02 }  }, { string: 'c', a: 1 ,  rule : { bitSentenceAnd : 0x01 } } ]
+  ];
+var res = Erbase.expandTokenMatchesToSentences2(['a','b','c'],src);
+  test.deepEqual(res.sentences, [
+  [ { string: 'a', a: 1, rule: { bitSentenceAnd: 2 } },
+    { string: '3', a: 1, rule: { bitSentenceAnd: 2 } } ],
+  [ { string: 'b', a: 1, rule: { bitSentenceAnd: 1 } },
+    { string: 'c', a: 1, rule: { bitSentenceAnd: 1 } } ] ]);
+  test.done();
+};
+
+
 
 exports.testExpandSpan = function (test) {
   test.ok(1);
@@ -321,6 +361,24 @@ exports.testExpand0 = function (test) {
 };
 
 
+exports.testTokenizeStringOrbitBitFiltered = function (test) {
+  // debuglog(JSON.stringify(ifr, undefined, 2))
+  //console.log(theModel.mRules);
+  //console.log(theModel.rules.wordMap["of"]);
+  //var augmentedRules = ErIndex.augmentedRules(theModel.rules);
+  var res = Erbase.processString2('orbit of the earth', theModel.rules, {});
+  debuglog('res > ' + JSON.stringify(res, undefined, 2));
+  //console.log('res > ' + JSON.stringify(res, undefined, 2));
+  test.deepEqual(simplifyStrings(res.sentences), [
+  [ 'orbit=>orbits/category',
+    'of=>of/filler',
+    'the=>the/filler',
+    'earth=>earth/object name' ] ], ' correct result ');
+  test.done();
+};
+
+
+
 
 
 exports.testTokenizeStringOrbitEbase = function (test) {
@@ -329,10 +387,12 @@ exports.testTokenizeStringOrbitEbase = function (test) {
   var res = Erbase.processString('orbit of the earth', theModel.rules, words);
   debuglog('res > ' + JSON.stringify(res, undefined, 2));
   //console.log('res > ' + JSON.stringify(res, undefined, 2));
-  test.deepEqual(simplifyStrings(res.sentences), [ [ 'orbit=>orbits/category',
+  test.deepEqual(simplifyStrings(res.sentences), [
+
+  /*  [ 'orbit=>orbits/category',
     'of=>of/filler',
     'the=>the/filler',
-    'earth=>earth/element name' ],
+    'earth=>earth/element name' ], */
   [ 'orbit=>orbits/category',
     'of=>of/filler',
     'the=>the/filler',
@@ -478,10 +538,10 @@ exports.testTokenizeStringOrbitWhatis = function (test) {
   debuglog('res > ' + JSON.stringify(res, undefined, 2));
   test.deepEqual(simplifyStrings(res.sentences),
 
-[ [ 'orbit=>orbits/category',
+[ /*[ 'orbit=>orbits/category',
     'of=>of/filler',
     'the=>the/filler',
-    'earth=>earth/element name' ],
+    'earth=>earth/element name' ], */
   [ 'orbit=>orbits/category',
     'of=>of/filler',
     'the=>the/filler',

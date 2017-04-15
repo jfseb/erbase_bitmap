@@ -66,7 +66,11 @@ function tokenizeString(sString, rules, words) {
             }
         */
         hasRecombined = hasRecombined || !seenIt.every(function (res) { return !res.rule.range; });
-        debuglog(" categorized " + token + "/" + index + " to " + JSON.stringify(seenIt));
+        debuglog(debuglog.enabled ? (" categorized " + token + "/" + index + " to " + JSON.stringify(seenIt))
+            : "-");
+        debuglog(debuglog.enabled ? (" categorized " + token + "/" + index + " to " +
+            seenIt.map(function (it, idx) { return " " + it.rule.wordType + " " + idx + " " + it.rule.bitindex + "  " + it.rule.matchedString + "/" + it.rule.category + " "; }).join("\n"))
+            : "-");
         categorizedSentence[index] = seenIt;
         cnt = cnt + seenIt.length;
         fac = fac * seenIt.length;
@@ -241,8 +245,92 @@ function expandTokenMatchesToSentences(tokens, tokenMatches) {
     return result;
 }
 exports.expandTokenMatchesToSentences = expandTokenMatchesToSentences;
+/**
+ * expand an array [[a1,a2], [b1,b2],[c]]
+ * into all combinations
+ *
+ *  if a1 has a span of three, the variations of the lower layer are skipped
+ *
+ * with the special property
+ */
+function expandTokenMatchesToSentences2(tokens, tokenMatches) {
+    var a = [];
+    var wordMatches = [];
+    debuglogV(debuglog.enabled ? JSON.stringify(tokenMatches) : '-');
+    tokenMatches.forEach(function (aWordMatches, wordIndex) {
+        wordMatches[wordIndex] = [];
+        aWordMatches.forEach(function (oWordVariant, wordVariantIndex) {
+            wordMatches[wordIndex][wordVariantIndex] = oWordVariant;
+        });
+    });
+    debuglog(debuglog.enabled ? JSON.stringify(tokenMatches) : '-');
+    var result = {
+        errors: [],
+        tokens: tokens,
+        sentences: []
+    };
+    var nvecs = [];
+    var res = [[]];
+    // var nvecs = [];
+    var rvec = [];
+    for (var tokenIndex = 0; tokenIndex < tokenMatches.length; ++tokenIndex) {
+        //vecs is the vector of all so far seen variants up to k length.
+        var nextBase = [];
+        //independent of existence of matches on level k, we retain all vectors which are covered by a span
+        // we skip extending them below
+        for (var u = 0; u < res.length; ++u) {
+            if (isSpanVec(res[u], tokenIndex)) {
+                nextBase.push(res[u]);
+            }
+        }
+        var lenMatches = tokenMatches[tokenIndex].length;
+        if (nextBase.length === 0 && lenMatches === 0) {
+            // the word at index I cannot be understood
+            //if (result.errors.length === 0) {
+            result.errors.push(ERError.makeError_NO_KNOWN_WORD(tokenIndex, tokens));
+            //}
+        }
+        for (var l = 0; l < lenMatches; ++l) {
+            //debuglog("vecs now" + JSON.stringify(vecs));
+            var nvecs = []; //vecs.slice(); // copy the vec[i] base vector;
+            //debuglog("vecs copied now" + JSON.stringify(nvecs));
+            for (var u = 0; u < res.length; ++u) {
+                if (!isSpanVec(res[u], tokenIndex)) {
+                    // for each so far constructed result (of length k) in res
+                    nvecs.push(res[u].slice()); // make a copy of each vector
+                    nvecs[nvecs.length - 1] = copyVecMembers(nvecs[nvecs.length - 1]);
+                    // debuglog("copied vecs["+ u+"]" + JSON.stringify(vecs[u]));
+                    nvecs[nvecs.length - 1].push(clone(tokenMatches[tokenIndex][l])); // push the lth variant
+                    // debuglog("now nvecs " + nvecs.length + " " + JSON.stringify(nvecs));
+                }
+            }
+            //   debuglog(" at     " + k + ":" + l + " nextbase >" + JSON.stringify(nextBase))
+            //   debuglog(" append " + k + ":" + l + " nvecs    >" + JSON.stringify(nvecs))
+            nextBase = nextBase.concat(nvecs);
+            //   debuglog("  result " + k + ":" + l + " nvecs    >" + JSON.stringify(nextBase))
+        } //constru
+        //  debuglog("now at " + k + ":" + l + " >" + JSON.stringify(nextBase))
+        res = nextBase;
+    }
+    debuglogV(debuglogV.enabled ? ("APPENDING TO RES" + 0 + ":" + l + " >" + JSON.stringify(nextBase)) : '-');
+    res = res.filter(function (sentence, index) {
+        var full = 0xFFFFFFFF;
+        //console.log(`sentence  ${index}  \n`)
+        return sentence.every(function (word, index2) {
+            full = full & word.rule.bitSentenceAnd;
+            // console.log(` word  ${index2} ${full} ${word.matchedString}  ${tokens[index2]} \n`);
+            return full !== 0;
+        });
+    });
+    result.sentences = res;
+    return result;
+}
+exports.expandTokenMatchesToSentences2 = expandTokenMatchesToSentences2;
 function processString(query, rules, words) {
     words = words || {};
+    if (!process.env.ABOT_NO_TEST1) {
+        return processString2(query, rules, words);
+    }
     var tokenStruct = tokenizeString(query, rules, words);
     evaluateRangeRulesToPosition(tokenStruct.tokens, tokenStruct.fusable, tokenStruct.categorizedWords);
     if (debuglog.enabled) {
@@ -263,6 +351,28 @@ function processString(query, rules, words) {
     return aSentences;
 }
 exports.processString = processString;
+function processString2(query, rules, words) {
+    words = words || {};
+    var tokenStruct = tokenizeString(query, rules, words);
+    evaluateRangeRulesToPosition(tokenStruct.tokens, tokenStruct.fusable, tokenStruct.categorizedWords);
+    if (debuglog.enabled) {
+        debuglog("After matched " + JSON.stringify(tokenStruct.categorizedWords));
+    }
+    var aSentences = expandTokenMatchesToSentences2(tokenStruct.tokens, tokenStruct.categorizedWords);
+    if (debuglog.enabled) {
+        debuglog("after expand" + aSentences.sentences.map(function (oSentence) {
+            return Sentence.rankingProduct(oSentence) + ":" + Sentence.dumpNice(oSentence); //JSON.stringify(oSentence);
+        }).join("\n"));
+    }
+    aSentences.sentences = WordMatch.reinForce(aSentences.sentences);
+    if (debuglog.enabled) {
+        debuglog("after reinforce" + aSentences.sentences.map(function (oSentence) {
+            return Sentence.rankingProduct(oSentence) + ":" + JSON.stringify(oSentence);
+        }).join("\n"));
+    }
+    return aSentences;
+}
+exports.processString2 = processString2;
 function simplifySentence(res) {
     return res.map(function (r) {
         return r.map(function (word) { return word.string + '=>' + word.matchedString + '/' + word.category + (word.span ? '/' + word.span : ''); });

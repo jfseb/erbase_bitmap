@@ -4,6 +4,8 @@ logs
 src
 test
 testmodel2
+outpu
+outpu*
 tsconfig.json
 README.md
 .eslintrc.json
@@ -11,6 +13,7 @@ README.md
 .gitignore
 .travis.yml
 guplfile.js
+abot_erbase-*
 **/*.map
 *.bak
 gen2

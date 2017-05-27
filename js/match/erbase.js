@@ -1,10 +1,11 @@
 /**
  *
- * @module jfseb.fdevstart.analyze
+ * @module jfseb.erbase
  * @file erbase
  * @copyright (c) 2016 Gerd Forstmann
  *
  * Basic domain based entity recognition
+ *
  */
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -245,6 +246,36 @@ function expandTokenMatchesToSentences(tokens, tokenMatches) {
     return result;
 }
 exports.expandTokenMatchesToSentences = expandTokenMatchesToSentences;
+// todo: bitindex
+function makeAnyWord(token) {
+    return { string: token,
+        matchedString: token,
+        category: 'any',
+        rule: { category: 'any',
+            type: 0,
+            word: token,
+            lowercaseword: token.toLowerCase(),
+            matchedString: token,
+            exactOnly: true,
+            bitindex: 4096,
+            bitSentenceAnd: 4095,
+            wordType: 'A',
+            _ranking: 0.9 },
+        _ranking: 0.9
+    };
+}
+exports.makeAnyWord = makeAnyWord;
+function isSuccessorOperator(res, tokenIndex) {
+    if (tokenIndex === 0) {
+        return false;
+    }
+    if (res[res.length - 1].rule.wordType === 'O') {
+        //debuglog(` assumuning op at ${tokenIndex} ` + JSON.stringify(res, undefined, 2));
+        return true;
+    }
+    return false;
+}
+exports.isSuccessorOperator = isSuccessorOperator;
 /**
  * expand an array [[a1,a2], [b1,b2],[c]]
  * into all combinations
@@ -274,15 +305,28 @@ function expandTokenMatchesToSentences2(tokens, tokenMatches) {
     // var nvecs = [];
     var rvec = [];
     for (var tokenIndex = 0; tokenIndex < tokenMatches.length; ++tokenIndex) {
-        //vecs is the vector of all so far seen variants up to k length.
+        //vecs is the vector of all so far seen variants up to tokenIndex length.
         var nextBase = [];
-        //independent of existence of matches on level k, we retain all vectors which are covered by a span
+        // independent of existence of matches on level k, we retain all vectors which are covered by a span
         // we skip extending them below
         for (var u = 0; u < res.length; ++u) {
             if (isSpanVec(res[u], tokenIndex)) {
                 nextBase.push(res[u]);
             }
+            else if (isSuccessorOperator(res[u], tokenIndex)) {
+                res[u].push(makeAnyWord(tokens[tokenIndex]));
+                nextBase.push(res[u]);
+            }
         }
+        // independent of existence of matches on level tokenIndex, we extend all vectors which
+        // are a successor of a binary extending op ( like "starting with", "containing" with the next token)
+        /*   for(var resIndex = 0; resIndex < res.length; ++resIndex) {
+          if (isSuccessorOperator(res[resIndex], tokenIndex)) {
+            res[resIndex].push(makeAnyWord(tokens[tokenIndex]));
+            nextBase.push(res[resIndex]);
+          }
+        }
+        */
         var lenMatches = tokenMatches[tokenIndex].length;
         if (nextBase.length === 0 && lenMatches === 0) {
             // the word at index I cannot be understood
@@ -295,7 +339,7 @@ function expandTokenMatchesToSentences2(tokens, tokenMatches) {
             var nvecs = []; //vecs.slice(); // copy the vec[i] base vector;
             //debuglog("vecs copied now" + JSON.stringify(nvecs));
             for (var u = 0; u < res.length; ++u) {
-                if (!isSpanVec(res[u], tokenIndex)) {
+                if (!isSpanVec(res[u], tokenIndex) && !isSuccessorOperator(res[u], tokenIndex)) {
                     // for each so far constructed result (of length k) in res
                     nvecs.push(res[u].slice()); // make a copy of each vector
                     nvecs[nvecs.length - 1] = copyVecMembers(nvecs[nvecs.length - 1]);
@@ -318,7 +362,7 @@ function expandTokenMatchesToSentences2(tokens, tokenMatches) {
         //console.log(`sentence  ${index}  \n`)
         return sentence.every(function (word, index2) {
             full = full & word.rule.bitSentenceAnd;
-            // console.log(` word  ${index2} ${full} ${word.matchedString}  ${tokens[index2]} \n`);
+            //console.log(` word  ${index2} ${full} "${word.matchedString}" ${word.rule.bitSentenceAnd}  ${tokens[index2]} \n`);
             return full !== 0;
         });
     });
@@ -351,6 +395,55 @@ function processString(query, rules, words) {
     return aSentences;
 }
 exports.processString = processString;
+/**
+ * Return true if the identical word is interpreted
+ * (within the same domain and the same wordtype)
+ * as a differnent  (e.g. element numb is one interpreted as 'CAT' element name, once as CAT 'element number' in
+ * same domain IUPAC elements )
+ * @param sentence
+ */
+function isDistinctInterpretationForSame(sentence) {
+    var mp = {};
+    var res = sentence.every(function (word, index) {
+        var seen = mp[word.string];
+        if (!seen) {
+            mp[word.string] = word;
+            return true;
+        }
+        if (!seen.rule || !word.rule) {
+            return true;
+        }
+        if (seen.rule.bitindex === word.rule.bitindex
+            && seen.rule.matchedString !== word.rule.matchedString) {
+            //  console.log("skipping this" + JSON.stringify(sentence,undefined,2));
+            return false;
+        }
+        return true;
+    });
+    return res;
+}
+exports.isDistinctInterpretationForSame = isDistinctInterpretationForSame;
+function filterNonSameInterpretations(aSentences) {
+    var discardIndex = [];
+    var res = Object.assign({}, aSentences);
+    res.sentences = aSentences.sentences.filter(function (sentence, index) {
+        if (!isDistinctInterpretationForSame(sentence)) {
+            discardIndex.push(index);
+            return false;
+        }
+        return true;
+    });
+    if (discardIndex.length) {
+        res.errors = aSentences.errors.filter(function (error, index) {
+            if (discardIndex.indexOf(index) >= 0) {
+                return false;
+            }
+            return true;
+        });
+    }
+    return res;
+}
+exports.filterNonSameInterpretations = filterNonSameInterpretations;
 function processString2(query, rules, words) {
     words = words || {};
     var tokenStruct = tokenizeString(query, rules, words);
@@ -364,6 +457,7 @@ function processString2(query, rules, words) {
             return Sentence.rankingProduct(oSentence) + ":" + Sentence.dumpNice(oSentence); //JSON.stringify(oSentence);
         }).join("\n"));
     }
+    var aSentences = filterNonSameInterpretations(aSentences);
     aSentences.sentences = WordMatch.reinForce(aSentences.sentences);
     if (debuglog.enabled) {
         debuglog("after reinforce" + aSentences.sentences.map(function (oSentence) {

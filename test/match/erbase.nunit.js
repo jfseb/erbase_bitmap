@@ -191,7 +191,7 @@ exports.testTokenizeStringElNames = function (test) {
     [],
     ['names=>element name/category C64',
      'names=>element name/category C32'],
-    ['b=>B/element symbol C32']
+    ['b=>B/element symbol F32']
     ], ' correct result ');
   test.done();
 };
@@ -202,7 +202,7 @@ exports.testTokenizeStringElNamesAlpha = function (test) {
   //console.log(theModel.mRules);
   var res = Erbase.tokenizeString('Alpha Cantauri B', theModel.rules, words);
   debuglog('res > ' + JSON.stringify(res, undefined, 2));
-console.log(JSON.stringify(res));
+//console.log(JSON.stringify(res));
   test.deepEqual(simplifyStrings(res.categorizedWords),
   [[],[], ['B=>B/element symbol' ] ]
   , ' correct result ');
@@ -224,11 +224,114 @@ exports.testProcessStringelementNames = function (test) {
     [  /* [ 'elaement names=>element name/category/2 C64',
     'nickel=>nickel/element name C32' ], */
     [ 'elaement names=>element name/category/2 C32',
-    'nickel=>nickel/element name C32' ]
+    'nickel=>nickel/element name F32' ]
      ]
     , ' correct result ');
   test.done();
 };
+
+exports.testTokenizeStringStartingWith = function (test) {
+  // debuglog(JSON.stringify(ifr, undefined, 2))
+  //console.log(theModel.mRules);
+  var res = Erbase.tokenizeString('SemanticObject, SemanticAction with SemanticObject starting with Sup', theModel.rules, words);
+  debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+
+  test.deepEqual(res.categorizedWords[4],
+   [ { string: 'starting with',
+         matchedString: 'starting with',
+         category: 'operator',
+         rule:
+          { category: 'operator',
+            word: 'starting with',
+            lowercaseword: 'starting with',
+            type: 0,
+            matchedString: 'starting with',
+            bitindex: 4096,
+            bitSentenceAnd: 4095,
+            wordType: 'O',
+            _ranking: 0.9 },
+         _ranking: 0.9,
+         span: 2 } ]
+    , ' correct result ');
+
+  test.done();
+};
+
+
+exports.testProcessStringStartingWith = function (test) {
+  // debuglog(JSON.stringify(ifr, undefined, 2))
+  //console.log(theModel.mRules);
+  var res = Erbase.processString('SemanticObject, SemanticAction with SemanticObject starting with Sup', theModel.rules, words);
+  debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+
+  test.deepEqual(simplifySentence(res.sentences),
+    [ [ 'SemanticObject=>SemanticObject/category',
+    'SemanticAction=>SemanticAction/category',
+    'with=>with/filler',
+    'SemanticObject=>SemanticObject/category',
+    'starting with=>starting with/operator/2',
+    'Sup=>Sup/any' ],
+  [ 'SemanticObject=>SemanticObject/category',
+    'SemanticAction=>SemanticAction/category',
+    'with=>with/filler',
+    'SemanticObject=>SemanticObject/category',
+    'starting with=>starting with/operator/2',
+    'Sup=>Sup/any' ] ]
+    , ' correct result ');
+ test.deepEqual(res.sentences[0][5],
+   { string: 'Sup',
+         matchedString: 'Sup',
+         category: 'any',
+         rule:
+          { category: 'any',
+            word: 'Sup',
+            lowercaseword: 'sup',
+            type: 0,
+            matchedString: 'Sup',
+            exactOnly: true,
+            bitindex: 4096,
+            bitSentenceAnd: 4095,
+            wordType: 'A',
+            _ranking: 0.9 },
+         _ranking: 0.9 }
+    , ' correct result ');
+
+
+  test.done();
+};
+
+
+
+exports.testProcessStringSameDistinct = function (test) {
+  // debuglog(JSON.stringify(ifr, undefined, 2))
+  //console.log(theModel.mRules);
+  var res = Erbase.processString('element name with element name starting with ABC', theModel.rules, words);
+  debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+
+  test.deepEqual(simplifySentence(res.sentences),
+   [ [ 'element name=>element name/category/2',
+    'with=>with/filler',
+    'element name=>element name/category/2',
+    'starting with=>starting with/operator/2',
+    'ABC=>ABC/any' ],
+  [ 'element name=>element name/category/2',
+    'with=>with/filler',
+    'element name=>element name/category/2',
+    'starting with=>starting with/operator/2',
+    'ABC=>ABC/any' ],
+  [ 'element name=>element number/category/2',
+    'with=>with/filler',
+    'element name=>element number/category/2',
+    'starting with=>starting with/operator/2',
+    'ABC=>ABC/any' ] ]
+    , ' correct result ');
+
+  test.done();
+};
+
+
+
+
 
 
 exports.testProcessStringelementNamesSep = function (test) {

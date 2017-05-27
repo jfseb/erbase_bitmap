@@ -4,11 +4,13 @@ a bit mapped base erbase categorization
 
 entity recognition based on word categorization
 
-Note: the function gives an extra boost in weight to small string lengths
 
 usage:
 >
->  var abot_stringdist = require('erbase_bitmapt');
+>  var erbase = require('erbase_bitmap');
+>  var words = {}; // a cache!
+>  var res = Erbase.processString('orbit of the earth', theModel.rules, words);
+
 >  console.log(abot_stringdist.calcDistance('abc','abc'));  // 1.0
 
 
